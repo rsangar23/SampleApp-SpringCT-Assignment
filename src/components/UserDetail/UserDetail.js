@@ -1,48 +1,69 @@
-import {useState} from 'react';
 import React from 'react';
 import {
-  StyleSheet,
+  Alert,
   Text,
+  StyleSheet,
+  View,
   TextInput,
   TouchableOpacity,
-  View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useList} from '../../contexts/UserProvider';
+import {useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const EmployeeInfo = ({navigation}) => {
-  const [userName, setUserName] = useState('');
-  const [userAge, setAge] = useState('');
-  const [userAddress, setAddress] = useState('');
-  const [userCity, setCity] = useState('');
+const UserDetail = props => {
+  const [user, setUser] = useState(props.route.params.user);
+  const {setUsers} = useList();
 
-  const {users, setUsers, findUsers} = useList();
+  const [name, setName] = useState(user.name);
+  const [age, setAge] = useState(user.age);
+  const [address, setAddress] = useState(user.address);
+  const [city, setCity] = useState(user.city);
 
-  const handleOnSubmit = (name, age, address, city) => {
-    const user = {id: Date.now(), name, age, address, city};
-    const updatedUsers = [...users, user];
-    setUsers(updatedUsers);
-    AsyncStorage.setItem('users', JSON.stringify(updatedUsers));
-    navigation.navigate('HomeScreen');
+  const handleUpdate = (name, age, address, city) => {
+    let tempusers = [];
+
+    AsyncStorage.getItem('users').then(res => {
+      res ? (tempusers = JSON.parse(res)) : [];
+
+      const newUsers = tempusers.filter(n => {
+        if (n.id === user.id) {
+          n.name = name;
+          n.age = age;
+          n.address = address;
+          n.city = city;
+
+          setUser(n);
+        }
+        return n;
+      });
+
+      setUsers(newUsers);
+      AsyncStorage.setItem('users', JSON.stringify(newUsers));
+      Alert.alert('Employee updated Successfully..!!');
+      props.navigation.navigate('HomeScreen');
+    });
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.textStyle}>Add Employee Details</Text>
+      <Text style={styles.textStyle}>Update Details</Text>
       <View style={styles.sectionStyle}>
         <TextInput
+          value={name}
           name="name"
           style={styles.inputStyle}
-          onChangeText={userName => setUserName(userName)}
+          onChangeText={name => setName(name)}
           placeholder="Enter Name"
           keyboardType="default"
         />
       </View>
       <View style={styles.sectionStyle}>
         <TextInput
+          value={age}
           name="age"
           style={styles.inputStyle}
-          onChangeText={userAge => setAge(userAge)}
+          onChangeText={age => setAge(age)}
           placeholder="Enter Age"
           keyboardType="numeric"
         />
@@ -50,21 +71,23 @@ const EmployeeInfo = ({navigation}) => {
       <View style={styles.sectionStyle2}>
         <TextInput
           name="address"
+          value={address}
           editable
           multiline
           numberOfLines={4}
           maxLength={40}
           style={styles.inputStyle}
-          onChangeText={userAddress => setAddress(userAddress)}
+          onChangeText={address => setAddress(address)}
           placeholder="Enter Address"
           keyboardType="default"
         />
       </View>
       <View style={styles.sectionStyle}>
         <TextInput
+          value={city}
           name="city"
           style={styles.inputStyle}
-          onChangeText={userCity => setCity(userCity)}
+          onChangeText={city => setCity(city)}
           placeholder="Enter City"
           keyboardType="default"
         />
@@ -72,9 +95,9 @@ const EmployeeInfo = ({navigation}) => {
 
       <TouchableOpacity
         activeOpacity={0.5}
-        onPress={() => handleOnSubmit(userName, userAge, userAddress, userCity)}
+        onPress={() => handleUpdate(name, age, address, city)}
         style={styles.buttonStyle}>
-        <Text style={styles.buttonTextStyle}>SUBMIT</Text>
+        <Text style={styles.buttonTextStyle}>UPDATE</Text>
       </TouchableOpacity>
     </View>
   );
@@ -137,4 +160,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EmployeeInfo;
+export default UserDetail;

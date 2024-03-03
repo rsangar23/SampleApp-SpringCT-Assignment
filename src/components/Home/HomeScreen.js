@@ -1,36 +1,44 @@
 import React from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {StyleSheet, View, TouchableOpacity, FlatList, Text} from 'react-native';
 import CardItem from '../../CardItem';
+import {useList} from '../../contexts/UserProvider';
 
 const HomeScreen = ({navigation}) => {
+  const {users, setUsers, findUsers} = useList();
+
   const onPress = () => {
     navigation.navigate('EmployeeInfo');
   };
 
-  const getUser = async () => {
-    try {
-      const savedUser = await AsyncStorage.getItem('user');
-      const currentUser = JSON.parse(savedUser);
-      console.log(currentUser);
-      const makeList = () => {
-        return currentUser.map(data => <CardItem data={data} />);
-      };
-    } catch (error) {
-      console.log(error);
-    }
+  const openUser = user => {
+    navigation.navigate('UserDetail', {user});
   };
 
   return (
-    <ScrollView>
-      <View style={styles.container}>{makeList()}</View>
+    <View style={styles.container}>
+      {!users ? (
+        <Text style={styles.textStyle}>No Records</Text>
+      ) : (
+        <FlatList
+          data={users ? users : []}
+          keyExtractor={item => item.name}
+          renderItem={({item}) => (
+            <CardItem
+              style={styles.card}
+              onPress={() => openUser(item)}
+              user={item ? item : {}}
+            />
+          )}
+        />
+      )}
 
       <TouchableOpacity
         activeOpacity={0.5}
-        onPress={onPress}
+        onPress={() => onPress()}
         style={styles.buttonStyle}>
-        <Text style={styles.buttonTextStyle}>Login</Text>
+        <Text style={styles.buttonTextStyle}>ADD EMPLOYEE</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -58,6 +66,19 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     paddingVertical: 10,
     fontSize: 16,
+  },
+  textStyle: {
+    color: 'black',
+    paddingVertical: 10,
+    fontSize: 30,
+    alignSelf: 'center',
+  },
+  card: {
+    height: 200,
+    width: '100%',
+    backgroundColor: '#f18484',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

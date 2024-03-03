@@ -28,7 +28,7 @@ const Login = ({navigation}) => {
       return;
     }
 
-    let data = {email: userEmail, passwaord: userPasswaord};
+    let data = {email: userEmail, password: userPasswaord};
     let formBody = [];
 
     for (let key in data) {
@@ -42,29 +42,25 @@ const Login = ({navigation}) => {
     fetch('https://reqres.in/api/login', {
       method: 'POST',
       headers: {
+        Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
       },
       body: formBody,
     })
-      .then(response => {
+      .then(async response => {
         const statusCode = response.status;
         const data = response.json();
-        return Promise.all([statusCode, data]).then(res => ({
+        const res = await Promise.all([statusCode, data]);
+        return {
           statusCode: res[0],
           data: res[1],
-        }));
+        };
       })
       .then(res => {
         const {statusCode, data} = res;
-
-        if (statusCode === '200') {
-          const storeData = async data => {
-            try {
-              await AsyncStorage.setItem('token', data.token);
-            } catch (error) {
-              console.log(error);
-            }
-          };
+        if (statusCode === 200) {
+          AsyncStorage.setItem('token', data.token);
+          console.log('At 69 : token saved');
           navigation.navigate('HomeScreen');
         } else {
           setError(data.error);
@@ -72,7 +68,7 @@ const Login = ({navigation}) => {
         }
       })
       .catch(e => {
-        console.log(e);
+        console.log('At 75 :' + e);
       });
   };
 
