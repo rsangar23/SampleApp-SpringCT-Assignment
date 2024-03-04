@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useRef} from 'react';
 import React from 'react';
 import {
   StyleSheet,
@@ -16,9 +16,30 @@ const EmployeeInfo = ({navigation}) => {
   const [userAddress, setAddress] = useState('');
   const [userCity, setCity] = useState('');
 
-  const {users, setUsers, findUsers} = useList();
+  const {users, setUsers} = useList();
+
+  const ageRef = useRef();
+  const addressRef = useRef();
+  const cityRef = useRef();
 
   const handleOnSubmit = (name, age, address, city) => {
+    if (!name) {
+      Alert.alert('please enter name');
+      return;
+    }
+    if (!age) {
+      Alert.alert('please enter age');
+      return;
+    }
+    if (!address) {
+      Alert.alert('please enter address');
+      return;
+    }
+    if (!city) {
+      Alert.alert('please enter city');
+      return;
+    }
+
     const user = {id: Date.now(), name, age, address, city};
     const updatedUsers = [...users, user];
     setUsers(updatedUsers);
@@ -32,24 +53,38 @@ const EmployeeInfo = ({navigation}) => {
       <View style={styles.sectionStyle}>
         <TextInput
           name="name"
+          returnKeyType='next'
           style={styles.inputStyle}
           onChangeText={userName => setUserName(userName)}
           placeholder="Enter Name"
           keyboardType="default"
+          onSubmitEditing={() => {
+            ageRef.current.focus();
+          }}
+          blurOnSubmit={false}
+          autoFocus={true}
         />
       </View>
       <View style={styles.sectionStyle}>
         <TextInput
           name="age"
+          ref={ageRef}
           style={styles.inputStyle}
+          returnKeyType='next'
           onChangeText={userAge => setAge(userAge)}
           placeholder="Enter Age"
           keyboardType="numeric"
+          onSubmitEditing={() => {
+            addressRef.current.focus();
+          }}
+          blurOnSubmit={false}
         />
       </View>
       <View style={styles.sectionStyle2}>
         <TextInput
           name="address"
+          ref={addressRef}
+          returnKeyType='next'
           editable
           multiline
           numberOfLines={4}
@@ -58,11 +93,17 @@ const EmployeeInfo = ({navigation}) => {
           onChangeText={userAddress => setAddress(userAddress)}
           placeholder="Enter Address"
           keyboardType="default"
+          onSubmitEditing={() => {
+            cityRef.current.focus();
+          }}
+          blurOnSubmit={false}         
         />
       </View>
       <View style={styles.sectionStyle}>
         <TextInput
           name="city"
+          ref={cityRef}
+          returnKeyType='next'
           style={styles.inputStyle}
           onChangeText={userCity => setCity(userCity)}
           placeholder="Enter City"

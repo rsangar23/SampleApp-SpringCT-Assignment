@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useList} from '../../contexts/UserProvider';
-import {useState} from 'react';
+import {useState, useRef} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UserDetail = props => {
@@ -19,6 +19,10 @@ const UserDetail = props => {
   const [age, setAge] = useState(user.age);
   const [address, setAddress] = useState(user.address);
   const [city, setCity] = useState(user.city);
+
+  const ageRef = useRef();
+  const addressRef = useRef();
+  const cityRef = useRef();
 
   const handleUpdate = (name, age, address, city) => {
     let tempusers = [];
@@ -56,21 +60,34 @@ const UserDetail = props => {
           onChangeText={name => setName(name)}
           placeholder="Enter Name"
           keyboardType="default"
+          onSubmitEditing={() => {
+            ageRef.current.focus();
+          }}
+          blurOnSubmit={false}
+          returnKeyType='next'
+          autoFocus={true}
         />
       </View>
       <View style={styles.sectionStyle}>
         <TextInput
+        ref={ageRef}
           value={age}
           name="age"
           style={styles.inputStyle}
           onChangeText={age => setAge(age)}
           placeholder="Enter Age"
           keyboardType="numeric"
+          onSubmitEditing={() => {
+            addressRef.current.focus();
+          }}
+          blurOnSubmit={false}
+          returnKeyType='next'
         />
       </View>
       <View style={styles.sectionStyle2}>
         <TextInput
           name="address"
+          ref={addressRef}
           value={address}
           editable
           multiline
@@ -80,16 +97,23 @@ const UserDetail = props => {
           onChangeText={address => setAddress(address)}
           placeholder="Enter Address"
           keyboardType="default"
+          onSubmitEditing={() => {
+            cityRef.current.focus();
+          }}
+          blurOnSubmit={false}
+          returnKeyType='next'
         />
       </View>
       <View style={styles.sectionStyle}>
         <TextInput
+        ref={cityRef}
           value={city}
           name="city"
           style={styles.inputStyle}
           onChangeText={city => setCity(city)}
           placeholder="Enter City"
           keyboardType="default"
+          returnKeyType='next'
         />
       </View>
 
